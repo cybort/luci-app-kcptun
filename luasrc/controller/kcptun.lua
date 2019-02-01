@@ -49,10 +49,7 @@ function action_status()
 end
 
 function action_check(type)
-	local json = nil
-	if type == "kcptun" then
-		json = kcp.check_kcptun(http.formvalue("arch"))
-	elseif type == "luci" then
+	if type == "luci" then
 		json = kcp.check_luci()
 	else
 		http.status(500, "Bad address")
@@ -64,16 +61,7 @@ end
 
 function action_update(type)
 	local json = nil
-	if type == "kcptun" then
-		local task = http.formvalue("task")
-		if task == "extract" then
-			json = kcp.extract_kcptun(http.formvalue("file"), http.formvalue("subfix"))
-		elseif task == "move" then
-			json = kcp.move_kcptun(http.formvalue("file"))
-		else
-			json = kcp.download_kcptun(http.formvalue("url"))
-		end
-	elseif type == "luci" then
+	if type == "luci" then
 		json = kcp.update_luci(http.formvalue("url"), http.formvalue("save"))
 	else
 		http.status(500, "Bad address")

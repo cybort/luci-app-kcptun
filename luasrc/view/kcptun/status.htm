@@ -55,27 +55,13 @@ local luci_version = kcp.get_luci_version()
     }
   );
 
-  window.onload = function () {
-    var archSelectElm = document.getElementById('cbid.kcptun.general.arch');
-    var checkKcptunBtn = document.getElementById('_kcptun-check_kcptun');
-    var kcptunDetailElm = document.getElementById('_kcptun-check_kcptun-detail');
-
-    archSelectElm.addEventListener('change', function() {
-      kcptunInfo = undefined;
-      kcptunDetailElm.innerHTML = '';
-
-      checkKcptunBtn.value = checkKcptunText;
-      checkKcptunBtn.placeholder = checkKcptunText;
-    });
-  };
-
   function addPageNotice() {
     window.onbeforeunload = function(e) {
       e.returnValue = updateInProgressNotice;
       return updateInProgressNotice;
     };
   }
-
+  
   function removePageNotice() {
     window.onbeforeunload = undefined;
   }
@@ -112,122 +98,6 @@ local luci_version = kcp.get_luci_version()
 
       if (typeof onResult === 'function') {
         onResult(resultJson);
-      }
-    })
-  }
-
-  function onKcptunBtnClick(type, btn) {
-    if (type === 'kcptun') {
-      if (kcptunInfo === undefined) {
-        checkUpdate(type, btn);
-      } else {
-        doKcptunUpdate(btn);
-      }
-    } else if (type === 'luci') {
-      if (luciInfo === undefined) {
-        checkUpdate(type, btn);
-      } else {
-        doLuciUpdate(btn);
-      }
-    } else {
-      alert(unexpectedErrorText);
-    }
-  }
-
-  function checkUpdate(type, btn) {
-    btn.disabled = true;
-    btn.value = inProgressText;
-
-    addPageNotice();
-
-    var archSelectElm = document.getElementById('cbid.kcptun.general.arch');
-    var ckeckDetailElm = document.getElementById(btn.id + '-detail');
-
-    doAjaxGet('<%=dsp.build_url("admin/services/kcptun/check")%>/' + type, {
-      token: tokenStr,
-      arch: archSelectElm ? archSelectElm.value : ''
-    }, function (json) {
-      removePageNotice();
-
-      if (json.code) {
-        eval(type + 'Info = undefined');
-
-        onRequestError(btn, json.error);
-      } else {
-        if (json.update) {
-          eval(type + 'Info = json');
-
-          btn.disabled = false;
-          btn.value = clickToUpdateText;
-          btn.placeholder = clickToUpdateText;
-        } else {
-          btn.disabled = true;
-          btn.value = noUpdateText;
-        }
-      }
-
-      if (ckeckDetailElm) {
-        var urlNode = '';
-
-        if (json.version) {
-          urlNode = '<em style="color:red;">' + json.version + '</em>';
-
-          if (json.url && json.url.html) {
-            urlNode = '<a href="' + json.url.html + '" target="_blank">' + urlNode + '</a>';
-          }
-        }
-        ckeckDetailElm.innerHTML = urlNode;
-      }
-    });
-  }
-
-  function doKcptunUpdate(btn) {
-    btn.disabled = true;
-    btn.value = '<%:Downloading...%>';
-
-    addPageNotice();
-
-    var kcptunUpdateUrl = '<%=dsp.build_url("admin/services/kcptun/update/kcptun")%>';
-
-    // Download file
-    doAjaxGet(kcptunUpdateUrl, {
-      token: tokenStr,
-      url: kcptunInfo ? kcptunInfo.url.download : ''
-    }, function (json) {
-      if (json.code) {
-        removePageNotice();
-        onRequestError(btn, json.error);
-      } else {
-        btn.value = '<%:Extracting...%>';
-
-        // Extract file
-        doAjaxGet(kcptunUpdateUrl, {
-          token: tokenStr,
-          task: 'extract',
-          file: json.file,
-          subfix: kcptunInfo ? kcptunInfo.type : ''
-        }, function (json) {
-          if (json.code) {
-            removePageNotice();
-            onRequestError(btn, json.error);
-          } else {
-            btn.value = '<%:Moving...%>';
-
-            // Move file to target dir
-            doAjaxGet(kcptunUpdateUrl, {
-              token: tokenStr,
-              task: 'move',
-              file: json.file
-            }, function (json) {
-              removePageNotice();
-              if (json.code) {
-                onRequestError(btn, json.error);
-              } else {
-                onUpdateSuccess(btn);
-              }
-            })
-          }
-        })
       }
     })
   }

@@ -78,28 +78,6 @@ o.validate = function(self, value, section)
 	return Value.validate(self, value, section)
 end
 
-o = s:option(ListValue, "arch", translate("CPU Architecture"),
-	translate("The ARCH for checking updates."))
-o:value("", translate("Auto"))
-o:value("i386", "x86")
-o:value("x86_64", "x86_64")
-o:value("armv5", "ARMv5")
-o:value("armv6", "ARMv6")
-o:value("armv7", "ARMv7+")
-o:value("ar71xx", "MIPS")
-o:value("ramips", "MIPSLE")
-
-o = s:option(Button, "_check_kcptun", translate("Check Kcptun Update"),
-	translate("Make sure that the 'Client File' dictionary has enough space."))
-o.template = "kcptun/button"
-o.inputstyle = "apply"
-o.placeholder = translate("Check Kcptun Update")
-o.btnclick = "onKcptunBtnClick('kcptun', this);"
-o.id = "_kcptun-check_kcptun"
-
-o = s:option(Flag, "save_config", translate("Save Config File"),
-	translate("Save config file while upgrade LuCI."))
-
 o = s:option(Button, "_check_luci", translate("Check LuCI Update"),
 	translate("You may need to reload current page after update LuCI. Note that translation will not be updated."))
 o.template = "kcptun/button"
